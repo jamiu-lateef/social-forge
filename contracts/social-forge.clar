@@ -505,3 +505,61 @@
     (ok true)
   )
 )
+
+(define-public (pause-contract)
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    (var-set contract-paused true)
+    (ok true)
+  )
+)
+
+(define-public (unpause-contract)
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    (var-set contract-paused false)
+    (ok true)
+  )
+)
+
+(define-public (emergency-withdraw (amount uint))
+  (begin
+    (asserts! (is-eq tx-sender CONTRACT-OWNER) ERR-UNAUTHORIZED)
+    (asserts! (> amount u0) ERR-INVALID-AMOUNT)
+    (asserts! (<= amount (stx-get-balance (as-contract tx-sender)))
+      ERR-INSUFFICIENT-BALANCE
+    )
+    (try! (as-contract (stx-transfer? amount tx-sender CONTRACT-OWNER)))
+    (ok true)
+  )
+)
+
+;; INITIAL MEMBERSHIP TIER CONFIGURATION
+
+(map-set membership-tiers u1 {
+  tier-name: "Bronze Tier",
+  min-reputation: u1000,
+  benefits: "Essential creator content access with basic engagement tools",
+  access-level: u1,
+})
+
+(map-set membership-tiers u2 {
+  tier-name: "Silver Tier",
+  min-reputation: u2000,
+  benefits: "Enhanced content access plus exclusive creator interactions",
+  access-level: u2,
+})
+
+(map-set membership-tiers u3 {
+  tier-name: "Gold Tier",
+  min-reputation: u5000,
+  benefits: "Premium content access with governance participation rights",
+  access-level: u3,
+})
+
+(map-set membership-tiers u4 {
+  tier-name: "Platinum Tier",
+  min-reputation: u8000,
+  benefits: "Elite access with revenue sharing and priority creator support",
+  access-level: u4,
+})
